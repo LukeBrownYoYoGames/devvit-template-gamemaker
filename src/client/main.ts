@@ -168,29 +168,34 @@ class GameLoader {
   }
 
   private ensureAspectRatio() {
-    if (!this.canvasElement || !this.startingHeight || !this.startingWidth) {
-      return;
-    }
+      if (!this.canvasElement || !this.startingHeight || !this.startingWidth) return;
 
-    this.canvasElement.classList.add('active');
+      this.canvasElement.classList.add("active");
 
-    const maxWidth = window.innerWidth;
-    const maxHeight = window.innerHeight;
-    let newHeight: number, newWidth: number;
+      const maxWidth = window.innerWidth;
+      const maxHeight = window.innerHeight;
 
-    const heightQuotient = this.startingHeight / maxHeight;
-    const widthQuotient = this.startingWidth / maxWidth;
+      let newWidth: number, newHeight: number;
 
-    if (heightQuotient > widthQuotient) {
-      newHeight = maxHeight;
-      newWidth = newHeight * this.startingAspect!;
-    } else {
-      newWidth = maxWidth;
-      newHeight = newWidth / this.startingAspect!;
-    }
+      const widthRatio = maxWidth / this.startingWidth;
+      const heightRatio = maxHeight / this.startingHeight;
+      const scale = Math.min(widthRatio, heightRatio);
 
-    this.canvasElement.style.height = '100%'; //`${newHeight}px`;
-    this.canvasElement.style.width = '100%'; //`${newWidth}px`;
+      newWidth = this.startingWidth * scale;
+      newHeight = this.startingHeight * scale;
+
+      // Use transform to scale without stretching
+      this.canvasElement.style.transform = `scale(${scale})`;
+      this.canvasElement.style.transformOrigin = "top left";
+
+      // Center the canvas
+      this.canvasElement.style.position = "absolute";
+      this.canvasElement.style.left = `${(maxWidth - newWidth) / 2}px`;
+      this.canvasElement.style.top = `${(maxHeight - newHeight) / 2}px`;
+
+      // Make sure the original width/height is kept
+      this.canvasElement.width = this.startingWidth;
+      this.canvasElement.height = this.startingHeight;
   }
 
   private async loadRunnerManifest(): Promise<void> {
